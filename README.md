@@ -20,4 +20,4 @@
 </table>
 
 ## **Elevation viz map**
-![](_viz/elevation_viz3.png)
+![](_viz/elevation_viz4.png)
