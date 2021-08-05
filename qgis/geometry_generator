@@ -1,46 +1,72 @@
 # Based on: https://hannes.enjoys.it/blog/2019/09/dynamic-elevation-profile-lines-as-qgis-geometry-generator/
 # Author: HannesPost
 
+-- UPPER CASE comments below are where you can change things
+
 with_variable(
-  'raster_layer',
-  'Peru_d87ce719_d1f9_4816_ad9a_400ad943da82',  -- RASTER LAYER to sample from
-  collect_geometries(
-	array_foreach(
-	  generate_series(
-		y(@map_extent_center)-(@map_extent_height/2), -- bottom y
-		y(@map_extent_center)+(@map_extent_height/2),  -- top y
-		@map_extent_height/400  -- stepsize -> HOW MANY LINES
-		 ),
-		 with_variable(
-			 'y',
-			 @element,
-			 make_line(
-				 array_foreach(
-					generate_series(
-						x(@map_extent_center)-(@map_extent_width/2), -- left x
-						x(@map_extent_center)+(@map_extent_width/2),  -- right x
-						@map_extent_width/450  -- stepsize -> HOW MANY POINTS PER LINE
+	'raster_layer',
+	'Peru_d87ce719_d1f9_4816_ad9a_400ad943da82',  -- RASTER LAYER to sample from
+	-- this collects all the linestrings generated below into one multilinestring
+	collect_geometries(
+		-- a loop for each y value of the grid
+		array_foreach(
+			-- array_foreach loops over all elements of the series generated below
+			-- which is a range of numbers from the bottom to the top of y values
+			-- of the map canvas extent coordinates.
+			-- the result will be an array of linestrings
+			generate_series(
+				y(@map_extent_center)-(@map_extent_height/2), -- bottom y
+				y(@map_extent_center)+(@map_extent_height/2),  -- top y
+				@map_extent_height/150  -- stepsize -> HOW MANY LINES
+			),
+			
+			-- we want to enter another loop so we assign the name 'y' to
+			-- the current element of the array_foreach loop
+			with_variable(
+				'y',
+				@element,
+				
+				-- now we are ready to generate the line for this y value
+				make_line(
+					-- another loop, this time for the x values. same logic as before
+					-- the result will be an array of points
+					array_foreach(
+						generate_series(
+							x(@map_extent_center)-(@map_extent_width/2), -- left x
+							x(@map_extent_center)+(@map_extent_width/2),  -- right x
+							@map_extent_width/280  -- stepsize -> HOW MANY POINTS PER LINE
 						),
-					make_point(
-						@element,  -- the current value from the loop over the x value range
-					    @y  -- the y value from the outer loop
-						+   -- will get an additional offset to generate the effect
-						coalesce(  -- coalesce to catch raster null values
-							raster_value(
-								@raster_layer,
-								1,  -- band 1, *snore*
-								transform(
-									make_point(@element, @y),
-									@map_crs,
-									layer_property(@raster_layer,'crs')
-								         )
-							            ),
+						-- and here we create each point of the line
+						make_point(
+							@element,  -- the current value from the loop over the x value range
+							@y  -- the y value from the outer loop
+							+   -- will get an additional offset to generate the effect
+							-- we look for values at _this point_ in the raster, and since
+							-- the raster might not have any value here, we must use coalesce
+							-- to use a replacement value in those cases
+							coalesce(  -- coalesce to catch raster null values
+								raster_value(
+									@raster_layer,
+									1,  -- band 1, *snore*
+									-- to look up the raster value we need to look in the right position
+									-- so we make a sampling point in the same CRS as the raster layer
+									transform( 
+										make_point(@element, @y),
+										@map_crs,
+										layer_property(@raster_layer,'crs')
+									)
+								),
 								0  -- coalesce 0 if raster_value gave null
-							   ) * 0.00015  -- user-defined factor for VERTICAL EXAGGERATION
+							-- here is where we set the scaling factor for the raster -> y values
+							-- if things are weird, set it to 0 and try small multiplications or divisions
+							-- to see what happens.
+							-- for metric systems you will want to multiply
+							-- for geographic coordinates you will want to divide
+							)*0.0001  -- user-defined factor for VERTICAL EXAGGERATION
 						)
 					)
 				)
 			)
 		)
 	)
-)
+)  -- wee
