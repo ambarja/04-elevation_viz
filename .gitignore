@@ -1,0 +1,19 @@
+# History files
+.Rhistory
+.Rapp.history
+
+# Session Data files
+.RData
+
+# User-specific files
+.Ruserdata
+
+# DEM 
+PeruDEM/*
+
+# files qgis 
+
+qgis/elevation_viz.gpkg
+qgis/elevation_viz.qgz
+
+
