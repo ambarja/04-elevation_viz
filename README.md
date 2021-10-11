@@ -20,4 +20,4 @@
 </table>
 
 ## **Elevation viz map**
-<p align="center"><img src="_viz/rocket.png" height="700px"></p>
+<p align="center"><img src="_viz/rocket.png" height="600px"></p>
