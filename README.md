@@ -13,11 +13,11 @@
   </tr>
   <tr>
     <td>Pop! OS 21.04 (hirsute)</td>
-    <td><li>R/Rstudio</li><li>QGIS 3.20.1-Odense</li></td>
-    <td> <li>rgee</li><li>plyr</li><li>raster</li><li>sf</li></td>
+    <td><li>R/Rstudio</li></td>
+    <td> <li>rgee</li><li>plyr</li><li>raster</li><li>sf</li><li>qgisprocess</li></td>
     <td align="center"> 15 gb </td>
   </tr>
 </table>
 
 ## **Elevation viz map**
-![](_viz/elevation_viz4.png)
+<p align="center"><img src="_viz/rocket.png" height="700px"></p>
